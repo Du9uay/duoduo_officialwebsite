@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="referrer" content="no-referrer">
+    <title>多多畅职 - DuoDuo Career</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/effects.css">
+    <link rel="stylesheet" href="./css/website.css">
+</head>
+<body>
+
+    <!-- ============================================
+         官网部分：导航栏 + 菜单 + 内容页面
+         ============================================ -->
+
+    <!-- 顶部导航栏 -->
+    <nav id="navbar" class="fixed top-0 w-full z-50 glass-nav transition-all duration-300">
+        <div class="flex items-center justify-between px-5 h-16">
+            <!-- Logo + 企业名称 -->
+            <div class="flex items-center gap-3" id="nav-logo-area">
+                <img src="https://ddcz-1315997005.cos.ap-nanjing.myqcloud.com/static/img/duoduo_logo/LOGO_1097x300.png"
+                     alt="多多畅职" class="h-8 w-auto object-contain">
+                <span class="text-white font-bold text-lg tracking-wide hidden md:block">多多畅职</span>
+            </div>
+
+            <!-- 汉堡菜单按钮 -->
+            <button id="menu-btn" class="text-white text-xl w-10 h-10 flex items-center justify-center focus:outline-none">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 全屏菜单 -->
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 flex flex-col justify-center items-center">
+        <ul class="space-y-8 text-center">
+            <li><a href="#" data-target="news" class="menu-link text-2xl text-white font-bold hover:text-cyan-400">新闻中心</a></li>
+            <li><a href="#" data-target="about" class="menu-link text-2xl text-gray-400 hover:text-white">关于我们</a></li>
+            <li><a href="#" data-target="product" class="menu-link text-2xl text-gray-400 hover:text-white">产品介绍</a></li>
+            <li class="pt-8 border-t border-white/10 w-48 mx-auto">
+                <a href="#" data-target="app" class="menu-link text-2xl text-cyan-400 font-bold glow-text">
+                    企业内推平台 <i class="fa-solid fa-rocket ml-2"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 官网内容容器 -->
+    <div id="website-container" class="relative w-full h-screen pt-16 bg-gradient-to-b from-gray-900 to-black overflow-y-auto">
+
+        <!-- 新闻中心页面 -->
+        <section id="page-news" class="page-section px-4 py-6 flex flex-col items-center pt-12 md:pt-20">
+            <div class="w-full max-w-4xl">
+                <h2 class="section-title">
+                    最新动态
+                    <span class="text-sm text-gray-500 font-normal ml-2">News Center</span>
+                </h2>
+
+                <!-- 轮播图 -->
+                <div class="carousel-container mt-6 rounded-2xl overflow-hidden shadow-2xl relative h-64 md:h-96">
+                    <div id="carousel-track" class="flex h-full transition-transform duration-500 ease-out">
+                        <!-- 图片由 JS 动态生成 -->
+                    </div>
+                    <div id="carousel-dots" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                        <!-- 指示点由 JS 动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 关于我们页面 -->
+        <section id="page-about" class="page-section hidden w-full pb-20">
+
+            <div class="relative w-full h-72 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                <img src="https://ddcz-1315997005.cos.ap-nanjing.myqcloud.com/static/img/duoduo_guanwang/recv39pAP6SKLd.jpg"
+                     class="w-full h-full object-cover transform hover:scale-105 transition duration-[10s]">
+                <div class="absolute bottom-6 left-6 z-20">
+                    <h2 class="text-4xl font-black text-white tracking-tighter mb-2">ABOUT US</h2>
+                    <div class="h-[2px] w-10 bg-cyan-400"></div>
+                </div>
+            </div>
+
+            <div class="px-6 mt-10 space-y-12">
+
+                <div class="space-y-6">
+                    <h3 class="text-2xl font-bold text-white tracking-wide">品牌介绍</h3>
+
+                    <div class="text-gray-300 text-base leading-8 text-justify font-light">
+                        <p>
+                            <span class="text-cyan-400 font-bold">多多畅职</span> 创立于 2024 年，是面向大专生的新型就业服务平台，隶属于苏州多多畅职教育文化科技有限公司。平台聚合企业高管、技术专家、营销专家与 HR 团队，结合 AI 赋能的前沿教学体系，从"能力培养—求职规划—岗位内推"三个阶段，构建大专生从校园到职场的完整成长路径。
+                        </p>
+                    </div>
+
+                    <div class="w-full rounded-lg overflow-hidden shadow-2xl border border-white/10">
+                        <img src="https://ddcz-1315997005.cos.ap-nanjing.myqcloud.com/static/img/duoduo_guanwang/recv39pB6L8Htt.jpg"
+                             class="w-full h-auto object-cover opacity-90">
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="text-gray-300 text-base leading-8 text-justify font-light">
+                        <p>
+                            我们深度链接 <span class="text-white font-bold border-b border-cyan-500/50 pb-0.5">70,000+</span> 合作企业与 <span class="text-white font-bold border-b border-cyan-500/50 pb-0.5">10,000+</span> 岗位方向，让学生不仅"能就业"，更"就好业"。多多畅职坚持<span class="text-white italic">"学历不设限，职场无边界"</span>的理念，致力于帮助大专生突破学历限制，培养复合型能力，打造清晰的职业发展路径，实现真正的高质量就业与成长。
+                        </p>
+                    </div>
+
+                    <div class="w-full rounded-lg overflow-hidden shadow-2xl border border-white/10">
+                        <img src="https://ddcz-1315997005.cos.ap-nanjing.myqcloud.com/static/img/duoduo_guanwang/recv39pAXGrE1M.jpg"
+                             class="w-full h-auto object-cover opacity-90">
+                    </div>
+                </div>
+
+                <div class="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+                <div class="space-y-8">
+                    <h3 class="text-2xl font-bold text-white tracking-wide text-right">创始人</h3>
+
+                    <div class="relative">
+                        <div class="glass-card p-0 overflow-hidden rounded-2xl">
+                            <div class="relative w-full h-80">
+                                <img src="https://ddcz-1315997005.cos.ap-nanjing.myqcloud.com/static/img/duoduo_guanwang/recv39pAFoofkW.png"
+                                     class="w-full h-full object-cover object-top">
+                                <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+
+                                <div class="absolute bottom-6 left-6">
+                                    <h4 class="text-3xl font-bold text-white mb-1">魏兴国</h4>
+                                    <p class="text-cyan-400 text-sm tracking-widest uppercase">FOUNDER</p>
+                                </div>
+                            </div>
+
+                            <div class="p-6 bg-white/5 backdrop-blur-md">
+                                <p class="text-gray-300 text-sm leading-7 text-justify">
+                                    魏兴国先生，多多畅职品牌创始人。他深耕职业教育领域，致力于解决大专生就业与职业发展难题。通过整合行业顶尖资源与创新教育模式，他带领团队构建了"能力培养+求职规划+岗位内推"的一站式服务体系，帮助无数学子打破学历天花板，实现职场逆袭与人生进阶。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="py-10 text-center">
+                    <p class="text-gray-500 text-xs tracking-[0.3em] uppercase mb-3">DuoDuo Career</p>
+                    <p class="text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-300 to-white font-bold text-lg">
+                        学历不设限 · 职场无边界
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 产品介绍页面 -->
+        <section id="page-product" class="page-section hidden w-full pb-20">
+
+            <!-- 顶部标题区域 -->
+            <div class="relative w-full h-32 md:h-48 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                <img src="https://ddcz-1315997005.cos.ap-nanjing.myqcloud.com/static/img/teach_sys_icon/recv39nZLKMruq.png"
+                     class="w-full h-full object-cover transform hover:scale-105 transition duration-[10s]">
+                <div class="absolute inset-0 bg-gradient-to-br from-cyan-900/20 to-blue-900/20"></div>
+                <div class="absolute bottom-6 left-6 z-20">
+                    <h2 class="text-3xl md:text-4xl font-black text-white tracking-tighter mb-2">PRODUCT</h2>
+                    <div class="h-[2px] w-10 bg-cyan-400"></div>
+                </div>
+            </div>
+
+            <!-- 内容区域 -->
+            <div class="px-6 md:px-8 mt-10 space-y-8 max-w-5xl mx-auto">
+
+                <!-- 产品标题 -->
+                <div class="text-center">
+                    <h3 class="text-2xl md:text-3xl font-bold text-white tracking-wide mb-3">企业订单班</h3>
+                    <div class="h-[1px] w-16 bg-cyan-400 mx-auto"></div>
+                </div>
+
+                <!-- 文字介绍卡片 -->
+                <div class="glass-card p-6 md:p-8 rounded-2xl border border-cyan-500/20">
+                    <p class="text-gray-300 text-base md:text-lg leading-8 md:leading-9 text-justify font-light">
+                        多多畅职<span class="text-cyan-400 font-semibold">"企业订单班"</span>通过与众多企业深度合作，综合企业岗前培训内容，实现<span class="text-white font-medium">"企业要什么，就教什么"</span>。采用企业一线专家导师授课，课程体系由企业直接参与设计，围绕真实岗位展开教学，并以企业标准全程评价学习成果。学生在学习期间即可接触企业真实的工作流程，学习掌握核心项目环节，毕业前完成实习/就业衔接，真正做到<span class="text-white font-medium">"入学即就业方向明确，结课即具备企业用人标准"</span>，帮助大专生实现从校园到职场的高质量跃迁。
+                    </p>
+                </div>
+
+                <!-- 产品长图展示 -->
+                <div class="w-full rounded-xl md:rounded-2xl overflow-hidden shadow-2xl border border-white/10">
+                    <img src="https://ddcz-1315997005.cos.ap-nanjing.myqcloud.com/static/img/duoduo_guanwang/recdYUXm7W.jpg"
+                         alt="企业订单班详情"
+                         class="w-full h-auto object-contain">
+                </div>
+
+                <!-- 底部装饰 -->
+                <div class="py-8 text-center">
+                    <p class="text-gray-500 text-xs tracking-[0.3em] uppercase">Enterprise Order Class</p>
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <!-- ============================================
+         3D内推平台部分（保留原有所有结构）
+         ============================================ -->
+
+    <div id="app-container" class="fixed inset-0 z-0 hidden">
+
+        <!-- 转场特效层 -->
+        <div id="speed-lines"></div>
+        <div id="cloud-fog"></div>
+
+        <!-- 3D场景UI层 -->
+        <div id="ui-layer">
+            <h1 class="v1-title">DUODUO Referral</h1>
+            <p class="v1-subtitle">CONNECTING TALENTS WITH THE WORLD</p>
+        </div>
+        <div class="instruction-hint">点击地球</div>
+
+        <!-- 3D画布容器 -->
+        <div id="canvas-container"></div>
+
+        <!-- 地图界面 -->
+        <div id="map-interface">
+            <header class="glass-header fixed top-0 w-full h-16 flex items-center justify-between px-4 md:px-8 z-50">
+                <!-- 移动端：只显示Logo和区域 -->
+                <div id="map-logo-area" class="flex items-center gap-2 cursor-pointer flex-shrink-0">
+                    <img src="https://ddcz-1315997005.cos.ap-nanjing.myqcloud.com/static/img/duoduo_logo/LOGO_1097x300.png"
+                         alt="多多畅职" class="h-6 md:h-8 w-auto object-contain">
+                    <div class="text-white font-bold text-xs md:text-sm tracking-wide hidden sm:block">多多畅职企业内推平台</div>
+                    <span class="text-gray-400 text-xs ml-2 hidden lg:inline">点击返回首页</span>
+                </div>
+                <!-- 搜索框：PC端 -->
+                <div class="relative w-1/3 hidden md:block">
+                    <input type="text" id="search-input" placeholder="搜索省份、城市、企业..." class="search-input w-full py-2 px-5 rounded-full text-center text-sm placeholder-gray-400">
+                </div>
+                <!-- 搜索框：移动端 -->
+                <div class="relative w-full px-4 md:hidden mb-2">
+                    <input type="text" id="search-input-mobile" placeholder="搜索省份、城市、企业..." class="search-input w-full py-2 px-4 rounded-full text-sm placeholder-gray-400">
+                </div>
+                <!-- 当前区域 -->
+                <div class="flex items-center gap-2 text-white text-xs md:text-sm flex-shrink-0">
+                    <span class="text-gray-400 hidden sm:inline">当前区域:</span>
+                    <span id="top-region-name" class="text-cyan-300 font-bold">全国</span>
+                </div>
+            </header>
+            <main class="pt-16 w-full h-full relative">
+                <div id="breadcrumb-container" class="absolute top-20 left-4 md:left-8 text-gray-400 text-xs md:text-sm z-40 hidden">
+                    <span class="hover:text-white cursor-pointer transition" onclick="resetMapToChina()">全国</span>
+                    <span class="mx-2 text-gray-600">/</span>
+                    <span class="text-cyan-400 font-bold">江苏省</span>
+                </div>
+                <div id="map-chart" style="width: 100%; height: calc(100vh - 64px); min-height: 500px;"></div>
+            </main>
+        </div>
+
+        <!-- 企业列表界面 -->
+        <div id="list-interface">
+            <header class="glass-header fixed top-0 w-full h-16 flex items-center justify-between px-4 md:px-8 z-50">
+                <button onclick="backToMap()" class="flex items-center gap-1 md:gap-2 text-gray-400 hover:text-white transition flex-shrink-0">
+                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    <span class="text-xs md:text-sm">返回地图</span>
+                </button>
+                <h2 id="list-city-title" class="text-sm md:text-lg font-bold text-white tracking-tight">苏州市 · 企业名录</h2>
+                <div class="w-12 md:w-20 flex-shrink-0"></div>
+            </header>
+
+            <div class="flex h-full pt-16">
+                <aside class="w-64 h-full border-r border-white/10 p-6 hidden md:block">
+                    <div class="mb-8">
+                        <h3 class="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-4">筛选 Filter</h3>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-gray-500 text-xs mb-2 block">所属行业</label>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="tag-badge cursor-pointer hover:bg-blue-500 hover:text-white transition">互联网</span>
+                                    <span class="tag-badge cursor-pointer hover:bg-blue-500 hover:text-white transition">金融</span>
+                                    <span class="tag-badge cursor-pointer hover:bg-blue-500 hover:text-white transition">硬科技</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-gray-500 text-xs mb-2 block">企业规模</label>
+                                <div class="space-y-2 text-gray-400 text-sm">
+                                    <div class="flex items-center gap-2"><input type="checkbox" class="accent-cyan-400"> <span>上市企业</span></div>
+                                    <div class="flex items-center gap-2"><input type="checkbox" class="accent-cyan-400"> <span>独角兽</span></div>
+                                    <div class="flex items-center gap-2"><input type="checkbox" class="accent-cyan-400"> <span>国企/央企</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-white/5 rounded-lg border border-white/5">
+                        <div class="text-gray-400 text-xs mb-1">当前城市收录</div>
+                        <div class="text-2xl font-bold text-white"><span id="company-count">124</span> <span class="text-sm text-gray-500 font-normal">家企业</span></div>
+                        <div class="text-2xl font-bold text-white mt-2"><span id="job-count">892</span> <span class="text-sm text-gray-500 font-normal">个岗位</span></div>
+                    </div>
+                </aside>
+
+                <main class="flex-1 h-full overflow-y-auto p-8">
+                    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- 企业详情页面 -->
+        <div id="detail-interface" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 7; display: none; opacity: 0; background: #050b14;">
+            <header class="glass-header fixed top-0 w-full h-16 flex items-center justify-between px-4 md:px-8 z-50">
+                <button onclick="backToList()" class="flex items-center gap-1 md:gap-2 text-cyan-400 hover:text-white transition group">
+                    <span class="group-hover:-translate-x-1 transition">←</span>
+                    <span class="text-xs md:text-sm">返回企业列表</span>
+                </button>
+                <div class="w-12 md:w-20"></div>
+            </header>
+
+            <!-- 移动端：上下排列整体滚动 | PC端：左右排列独立滚动 -->
+            <div class="h-full pt-16 overflow-y-auto md:overflow-hidden md:flex">
+                <!-- 企业基本信息区 -->
+                <aside class="w-full md:w-1/3 md:h-full md:overflow-y-auto border-b md:border-b-0 md:border-r border-white/10 p-4 md:p-8 bg-black/20" style="scrollbar-width: thin; scrollbar-color: #38bdf8 rgba(255,255,255,0.05);">
+                    <div class="flex flex-col items-center mb-6 md:mb-8">
+                        <h1 id="d-name" class="text-xl md:text-3xl font-bold text-white text-center mb-2"></h1>
+                        <div id="d-tags" class="flex flex-wrap gap-2 justify-center"></div>
+                    </div>
+
+                    <div class="space-y-4 md:space-y-6">
+                        <div>
+                            <h3 class="text-cyan-500 text-xs font-bold uppercase mb-2">企业简介 About</h3>
+                            <p id="d-intro" class="text-gray-300 text-xs md:text-sm leading-relaxed text-justify"></p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-cyan-900/30 to-transparent border border-cyan-500/20 p-3 md:p-4 rounded-lg">
+                            <h3 class="text-cyan-400 text-xs md:text-sm font-bold mb-2 flex items-center">🔥 推荐理由 Highlight</h3>
+                            <p id="d-reason" class="text-gray-400 text-xs leading-relaxed"></p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-cyan-500 text-xs font-bold uppercase mb-2">地区 Location</h3>
+                            <p id="d-region" class="text-gray-400 text-xs md:text-sm whitespace-pre-line"></p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-cyan-500 text-xs font-bold uppercase mb-2">企业风采 Gallery</h3>
+                            <div id="d-gallery" class="grid grid-cols-3 gap-2">
+                                <!-- 动态填充图片 -->
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- 业务板块展示区 -->
+                <main class="w-full md:flex-1 md:h-full md:overflow-y-auto p-4 md:p-8 bg-gradient-to-br from-gray-900 to-black">
+                    <div class="mb-4 md:mb-6">
+                        <h2 class="text-lg md:text-2xl font-bold text-white mb-1">业务板块 & 内推岗位</h2>
+                        <span class="text-gray-500 text-xs md:text-sm">Business Segments & Opportunities</span>
+                    </div>
+
+                    <div id="d-segments" class="grid grid-cols-1 gap-4 md:gap-6">
+                        <!-- 动态生成业务板块卡片 -->
+                    </div>
+
+                    <div class="h-20"></div>
+                </main>
+            </div>
+        </div>
+
+        <!-- 图片Lightbox模态框 -->
+        <div id="image-lightbox" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm hidden items-center justify-center">
+            <!-- 关闭按钮 -->
+            <button id="lightbox-close" class="absolute top-4 right-4 md:top-8 md:right-8 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-white hover:text-cyan-400 transition text-2xl md:text-3xl z-10">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- 左右切换按钮 -->
+            <button id="lightbox-prev" class="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 flex items-center justify-center text-white hover:text-cyan-400 transition text-2xl md:text-4xl z-10">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button id="lightbox-next" class="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 flex items-center justify-center text-white hover:text-cyan-400 transition text-2xl md:text-4xl z-10">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <!-- 图片容器 -->
+            <div class="relative w-full h-full flex items-center justify-center p-4 md:p-16">
+                <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain">
+            </div>
+
+            <!-- 图片序号指示器 -->
+            <div id="lightbox-counter" class="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 text-white text-sm md:text-base bg-black/50 px-4 py-2 rounded-full">
+                <span id="lightbox-current">1</span> / <span id="lightbox-total">1</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 外部库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+
+    <!-- 应用主入口（ES Module） -->
+    <script type="module" src="./js/main.js"></script>
+
+</body>
+</html>

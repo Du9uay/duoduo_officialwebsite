@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>内推宇宙 - Ultimate Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* --- 基础设置 --- */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #020205; font-family: 'Inter', sans-serif; }
+
+        /* 滚动条样式美化 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 3px; }
+
+        /* --- 3D 容器 --- */
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        /* 交互手型逻辑 */
+        #canvas-container.interactive { cursor: pointer; }
+        
+        /* --- V1 风格霸气 UI (回归) --- */
+        #ui-layer {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; color: white; z-index: 10; pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        /* 核心：回归 V1 的发光大字 */
+        .v1-title {
+            font-family: 'Arial Black', 'Helvetica Neue', sans-serif;
+            font-size: 5rem; /* 巨大 */
+            letter-spacing: 0.8rem;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.8), 0 0 40px rgba(0, 240, 255, 0.4);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            white-space: nowrap;
+            opacity: 0; /* 初始隐藏，等待开场动画 */
+        }
+        .v1-subtitle {
+            font-size: 1.2rem; color: #ccc; letter-spacing: 0.4rem; font-weight: 300;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+            opacity: 0; /* 初始隐藏，等待开场动画 */
+        }
+
+        /* 底部提示呼吸灯 */
+        .instruction-hint {
+            position: absolute; bottom: 10%; left: 50%; transform: translateX(-50%);
+            color: rgba(0, 240, 255, 0.8); font-size: 0.9rem; pointer-events: none; z-index: 10;
+            letter-spacing: 2px; border: 1px solid rgba(0, 240, 255, 0.3);
+            padding: 10px 20px; border-radius: 30px; background: rgba(0,0,0,0.5);
+            animation: pulse 2s infinite;
+            opacity: 0; /* 初始隐藏，等待开场动画 */
+        }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 240, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 240, 255, 0); } }
+
+        /* --- 高级转场特效层 --- */
+        
+        /* 1. 速度线 (Speed Lines) */
+        #speed-lines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 15;
+            background: radial-gradient(circle, transparent 40%, rgba(255, 255, 255, 0.1) 45%, transparent 50%);
+            background-size: 200% 200%;
+            opacity: 0; pointer-events: none;
+            transform: scale(1);
+        }
+
+        /* 2. 大气迷雾 (Cloud Fog) - 替代简单的白屏 */
+        #cloud-fog {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20;
+            /* 使用 backdrop-filter 制造真实的模糊感 */
+            backdrop-filter: blur(0px); 
+            background: radial-gradient(circle, rgba(220, 240, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0) 100%);
+            opacity: 0; pointer-events: none;
+            transform: scale(0.8);
+        }
+
+        /* --- 2D 界面 (保持不变) --- */
+        #map-interface, #list-interface {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5;
+            display: none;
+            background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0b1026 100%);
+        }
+        #list-interface { z-index: 6; background: #0b1026; background-image: linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px); background-size: 40px 40px; }
+
+        /* 组件样式 */
+        .glass-header { background: rgba(11, 16, 38, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .search-input {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white; transition: all 0.3s;
+        }
+        .search-input:focus {
+            background: rgba(255,255,255,0.15); border-color: #38bdf8; outline: none;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+        .search-input::placeholder { color: rgba(255,255,255,0.4); }
+        .job-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(56, 189, 248, 0.2); backdrop-filter: blur(10px); transition: all 0.3s; }
+        .job-card:hover { transform: translateY(-5px); border-color: #38bdf8; background: rgba(30, 41, 59, 0.8); box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.3); }
+
+        /* --- 企业卡片样式 (列表页) --- */
+        .company-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .company-card:hover {
+            transform: translateY(-5px);
+            border-color: #38bdf8;
+            background: rgba(30, 41, 59, 0.8);
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
+        }
+
+        /* --- 企业详情页样式 --- */
+        .segment-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .segment-title {
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .segment-title::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 16px;
+            background: #38bdf8;
+            margin-right: 10px;
+            box-shadow: 0 0 10px #38bdf8;
+        }
+        .job-tag {
+            display: inline-block;
+            padding: 6px 12px;
+            margin: 0 8px 8px 0;
+            background: rgba(56, 189, 248, 0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(56, 189, 248, 0.1);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .job-tag:hover {
+            background: #38bdf8;
+            color: #000;
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+        }
+        .gallery-img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s;
+        }
+        .gallery-img:hover {
+            transform: scale(1.05);
+            border-color: #38bdf8;
+        }
+
+        .tag-badge { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <div id="speed-lines"></div>
+    <div id="cloud-fog"></div>
+
+    <div id="ui-layer">
+        <h1 class="v1-title">FUTURE CAREER</h1>
+        <p class="v1-subtitle">CONNECTING TALENTS WITH THE WORLD</p>
+    </div>
+    <div class="instruction-hint">点击地球 · 穿梭时空</div>
+
+    <div id="canvas-container"></div>
+
+    <div id="map-interface">
+        <header class="glass-header fixed top-0 w-full h-16 flex items-center justify-between px-8 z-50">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="resetMapToChina()">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-400 rounded flex items-center justify-center font-bold text-white text-lg">N</div>
+                <div class="text-white font-bold text-lg tracking-widest">NEITUI.CO</div>
+            </div>
+            <div class="relative w-1/3">
+                <input type="text" placeholder="搜索职位、公司、城市..." class="search-input w-full py-2 px-5 rounded-full text-center text-sm placeholder-gray-400">
+            </div>
+            <div class="flex items-center gap-4 text-white text-sm">
+                <span class="text-gray-400">当前区域:</span>
+                <span id="top-region-name" class="text-cyan-300 font-bold">全国</span>
+            </div>
+        </header>
+        <main class="pt-16 w-full h-full relative">
+            <div id="breadcrumb-container" class="absolute top-20 left-8 text-gray-400 text-sm z-40 hidden">
+                <span class="hover:text-white cursor-pointer transition" onclick="resetMapToChina()">全国</span>
+                <span class="mx-2 text-gray-600">/</span>
+                <span class="text-cyan-400 font-bold">江苏省</span>
+            </div>
+            <div id="map-chart" style="width: 100%; height: 100%;"></div>
+        </main>
+    </div>
+
+    <div id="list-interface">
+        <header class="glass-header fixed top-0 w-full h-16 flex items-center justify-between px-8 z-50">
+            <button onclick="backToMap()" class="flex items-center gap-2 text-gray-400 hover:text-white transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <span>返回地图</span>
+            </button>
+            <h2 id="list-city-title" class="text-xl font-bold text-white tracking-wider">CITY NAME</h2>
+            <div class="w-20"></div>
+        </header>
+
+        <div class="flex h-full pt-16">
+            <aside class="w-64 h-full border-r border-white/10 p-6 hidden md:block">
+                <div class="mb-8">
+                    <h3 class="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-4">筛选 Filter</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-gray-500 text-xs mb-2 block">所属行业</label>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag-badge cursor-pointer hover:bg-blue-500 hover:text-white transition">互联网</span>
+                                <span class="tag-badge cursor-pointer hover:bg-blue-500 hover:text-white transition">金融</span>
+                                <span class="tag-badge cursor-pointer hover:bg-blue-500 hover:text-white transition">硬科技</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-gray-500 text-xs mb-2 block">企业规模</label>
+                            <div class="space-y-2 text-gray-400 text-sm">
+                                <div class="flex items-center gap-2"><input type="checkbox" class="accent-cyan-400"> <span>上市企业</span></div>
+                                <div class="flex items-center gap-2"><input type="checkbox" class="accent-cyan-400"> <span>独角兽</span></div>
+                                <div class="flex items-center gap-2"><input type="checkbox" class="accent-cyan-400"> <span>国企/央企</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-white/5 rounded-lg border border-white/5">
+                    <div class="text-gray-400 text-xs mb-1">当前城市收录</div>
+                    <div class="text-2xl font-bold text-white"><span id="company-count">124</span> <span class="text-sm text-gray-500 font-normal">家企业</span></div>
+                    <div class="text-2xl font-bold text-white mt-2"><span id="job-count">892</span> <span class="text-sm text-gray-500 font-normal">个岗位</span></div>
+                </div>
+            </aside>
+
+            <main class="flex-1 h-full overflow-y-auto p-8">
+                <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 企业详情页面 -->
+    <div id="detail-interface" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 7; display: none; opacity: 0; background: #050b14;">
+        <header class="glass-header fixed top-0 w-full h-16 flex items-center justify-between px-8 z-50">
+            <button onclick="backToList()" class="flex items-center gap-2 text-cyan-400 hover:text-white transition group">
+                <span class="group-hover:-translate-x-1 transition">←</span>
+                <span>返回企业列表</span>
+            </button>
+            <div class="w-20"></div>
+        </header>
+
+        <div class="flex h-full pt-16 overflow-hidden">
+            <!-- 左侧信息栏 -->
+            <aside class="w-1/3 h-full overflow-y-auto border-r border-white/10 p-8 bg-black/20" style="scrollbar-width: thin; scrollbar-color: #38bdf8 rgba(255,255,255,0.05);">
+                <div class="flex flex-col items-center mb-8">
+                    <h1 id="d-name" class="text-3xl font-bold text-white text-center mb-2"></h1>
+                    <div id="d-tags" class="flex flex-wrap gap-2 justify-center"></div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-cyan-500 text-xs font-bold uppercase mb-2">企业简介 About</h3>
+                        <p id="d-intro" class="text-gray-300 text-sm leading-relaxed text-justify"></p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-cyan-900/30 to-transparent border border-cyan-500/20 p-4 rounded-lg">
+                        <h3 class="text-cyan-400 text-sm font-bold mb-2 flex items-center">🔥 推荐理由 Highlight</h3>
+                        <p id="d-reason" class="text-gray-400 text-xs leading-relaxed"></p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-cyan-500 text-xs font-bold uppercase mb-2">地区 Location</h3>
+                        <p id="d-region" class="text-gray-400 text-sm whitespace-pre-line"></p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-cyan-500 text-xs font-bold uppercase mb-2">企业风采 Gallery</h3>
+                        <div id="d-gallery" class="grid grid-cols-3 gap-2">
+                            <!-- 动态填充图片 -->
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- 右侧业务板块展示区 -->
+            <main class="flex-1 h-full overflow-y-auto p-8 bg-gradient-to-br from-gray-900 to-black">
+                <div class="mb-6 flex items-end gap-4">
+                    <h2 class="text-2xl font-bold text-white">业务板块 & 内推岗位</h2>
+                    <span class="text-gray-500 text-sm pb-1">Business Segments & Opportunities</span>
+                </div>
+
+                <div id="d-segments" class="grid grid-cols-1 gap-6">
+                    <!-- 动态生成业务板块卡片 -->
+                </div>
+
+                <div class="h-20"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+
+    <script>
+        /* =========================================
+           PART 1: 3D 场景构建 (V1 风格 + 高级转场)
+           ========================================= */
+        const container = document.getElementById('canvas-container');
+        const uiLayer = document.getElementById('ui-layer');
+        const hint = document.querySelector('.instruction-hint');
+        const speedLines = document.getElementById('speed-lines');
+        const cloudFog = document.getElementById('cloud-fog');
+
+        const scene = new THREE.Scene();
+        // 极深蓝背景雾，融合星空
+        scene.fog = new THREE.FogExp2(0x020205, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.z = 100; // 开场动画：从深空开始
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        container.appendChild(renderer.domElement);
+
+        const loader = new THREE.TextureLoader();
+        const earthGroup = new THREE.Group();
+        scene.add(earthGroup);
+
+        // --- A. 星空 (保持之前优化的圆形彩色星星) ---
+        function createStarTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 32; canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+            grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.4)');
+            grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 32, 32);
+            return new THREE.Texture(canvas);
+        }
+        const starTexture = createStarTexture();
+        starTexture.needsUpdate = true;
+
+        const starGeo = new THREE.BufferGeometry();
+        const starCount = 10000; // 增加到10000个
+        const posArray = []; const colorArray = [];
+        // 扩展颜色调色板：白色、蓝白色、金黄色、淡紫色
+        const palette = [
+            new THREE.Color(0xffffff), // 纯白
+            new THREE.Color(0xaaddff), // 蓝白
+            new THREE.Color(0xffddaa), // 金黄
+            new THREE.Color(0xddaaff), // 淡紫
+            new THREE.Color(0xffffff), // 增加白色权重
+            new THREE.Color(0xffffff)  // 让大部分星星保持纯白
+        ];
+        for(let i=0; i<starCount; i++) {
+            posArray.push((Math.random()-0.5)*500, (Math.random()-0.5)*500, (Math.random()-0.5)*250-50);
+            const c = palette[Math.floor(Math.random()*palette.length)];
+            colorArray.push(c.r, c.g, c.b);
+        }
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(posArray, 3));
+        starGeo.setAttribute('color', new THREE.Float32BufferAttribute(colorArray, 3));
+
+        // 创建自定义着色器材质以支持彩色星星
+        const starMaterial = new THREE.ShaderMaterial({
+            uniforms: {
+                pointTexture: { value: starTexture }
+            },
+            vertexShader: `
+                attribute vec3 color;
+                varying vec3 vColor;
+                void main() {
+                    vColor = color;
+                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                    gl_PointSize = 1.4 * (300.0 / -mvPosition.z);
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D pointTexture;
+                varying vec3 vColor;
+                void main() {
+                    gl_FragColor = vec4(vColor, 1.0) * texture2D(pointTexture, gl_PointCoord);
+                }
+            `,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            transparent: true
+        });
+
+        const stars = new THREE.Points(starGeo, starMaterial);
+        scene.add(stars);
+
+        // --- B. 地球 (保持材质优化) ---
+        const earth = new THREE.Mesh(
+            new THREE.SphereGeometry(5, 64, 64),
+            new THREE.MeshPhongMaterial({
+                map: loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg'),
+                specularMap: loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg'),
+                normalMap: loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_normal_2048.jpg'),
+                specular: new THREE.Color(0x111111), shininess: 5
+            })
+        );
+        earthGroup.add(earth);
+
+        const clouds = new THREE.Mesh(
+            new THREE.SphereGeometry(5.08, 64, 64),
+            new THREE.MeshLambertMaterial({
+                map: loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png'),
+                transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending
+            })
+        );
+        earthGroup.add(clouds);
+
+        // 大气光晕 (V1 Shader)
+        const atmosphere = new THREE.Mesh(
+            new THREE.SphereGeometry(5.35, 64, 64),
+            new THREE.ShaderMaterial({
+                vertexShader: `varying vec3 vNormal; void main() { vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+                fragmentShader: `varying vec3 vNormal; void main() { float intensity = pow(0.55 - dot(vNormal, vec3(0, 0, 1.0)), 4.5); gl_FragColor = vec4(0.0, 0.6, 1.0, 1.0) * intensity; }`,
+                blending: THREE.AdditiveBlending, side: THREE.BackSide, transparent: true
+            })
+        );
+        scene.add(atmosphere);
+
+        // --- C. 灯光 ---
+        scene.add(new THREE.AmbientLight(0x050510));
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        sunLight.position.set(30, 10, 30);
+        scene.add(sunLight);
+        const rimLight = new THREE.SpotLight(0x0088ff, 3);
+        rimLight.position.set(-30, 20, -5);
+        rimLight.lookAt(0, 0, 0);
+        scene.add(rimLight);
+
+        // --- 开场动画：从深空归来 ---
+        function startIntroSequence() {
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    isIntro = false; // 动画结束，允许交互
+                }
+            });
+
+            // A. 摄像机缓慢推进 (从 z=100 -> z=16)
+            tl.to(camera.position, {
+                z: 16,
+                duration: 5, // 5秒长镜头
+                ease: "power2.out" // 缓出，慢慢停下
+            });
+
+            // B. UI 淡入 (标题和提示依次出现)
+            tl.to('.v1-title', {
+                opacity: 1,
+                duration: 1.5,
+                ease: "power2.out"
+            }, "-=1.5"); // 提前1.5秒开始，与摄像机运动重叠
+
+            tl.to('.v1-subtitle', {
+                opacity: 1,
+                duration: 1.2,
+                ease: "power2.out"
+            }, "-=0.8"); // 字幕稍晚出现
+
+            tl.to('.instruction-hint', {
+                opacity: 1,
+                duration: 1.0,
+                ease: "power2.out"
+            }, "-=0.5"); // 提示最后出现
+        }
+
+        // 页面加载完成后自动启动开场动画
+        window.onload = startIntroSequence;
+
+        // --- D. 交互与转场 (核心升级) ---
+        
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let isIntro = true; // 开场动画进行中
+        let isHovering = false, isTransitioning = false;
+        let parallaxX = 0, parallaxY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            if(isTransitioning) return;
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            // 只有开场动画结束后才检测悬停
+            if (!isIntro) {
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects([earth, clouds]);
+
+                if(intersects.length > 0) {
+                    if(!isHovering) {
+                        isHovering = true;
+                        container.classList.add('interactive');
+                        gsap.to(atmosphere.scale, {x:1.03, y:1.03, z:1.03, duration:0.3});
+                    }
+                } else {
+                    if(isHovering) {
+                        isHovering = false;
+                        container.classList.remove('interactive');
+                        gsap.to(atmosphere.scale, {x:1, y:1, z:1, duration:0.3});
+                    }
+                }
+            }
+
+            parallaxX = (e.clientX - window.innerWidth / 2) * 0.001;
+            parallaxY = (e.clientY - window.innerHeight / 2) * 0.001;
+        });
+
+        window.addEventListener('mousedown', () => {
+            if(isIntro || !isHovering || isTransitioning) return; // 开场动画期间禁用点击
+            triggerHyperWarp();
+        });
+
+        // === 终极转场逻辑 ===
+        function triggerHyperWarp() {
+            isTransitioning = true;
+            container.classList.remove('interactive');
+
+            // 0. UI 消失
+            uiLayer.style.opacity = 0;
+            hint.style.opacity = 0;
+
+            const tl = gsap.timeline({ onComplete: switchTo2D });
+            // 修正：中国大陆位于东经约105度
+            // Three.js Y轴旋转：正值=逆时针（从上往下看）
+            // 要将东经105度旋转到正面，需要逆时针旋转105度
+            // 转换为弧度：105° × (π/180) ≈ 1.83 弧度
+            const targetRotY = 2.83; // 让中国朝向相机
+            const targetRotX = 0.7;  // 轻微向下倾斜
+
+            // 1. 地球对齐 + 速度线出现
+            tl.to(earthGroup.rotation, { y: targetRotY, x: targetRotX, duration: 1.2, ease: "power2.inOut" }, "start");
+            tl.to(speedLines, { opacity: 1, scale: 1.5, duration: 1.0, ease: "power1.in" }, "start");
+
+            // 2. 镜头急速突进 (模拟穿过云层)
+            tl.to(camera.position, {
+                z: 4.5, // 冲得更近，直接穿模
+                x: 0,   // 确保对准中心
+                y: 0,   // 确保对准中心
+                duration: 1.5,
+                ease: "expo.in",
+                onUpdate: () => {
+                    // 镜头抖动效果 (Camera Shake) - 只在z<8时轻微抖动
+                    if(camera.position.z < 8 && camera.position.z > 5) {
+                        const shakeX = (Math.random() - 0.5) * 0.03;
+                        const shakeY = (Math.random() - 0.5) * 0.03;
+                        camera.position.x += shakeX;
+                        camera.position.y += shakeY;
+                    }
+                }
+            }, "start");
+
+            // 3. 材质变化：大气层和云层迅速变淡（为了不挡视线）
+            tl.to([clouds.material, atmosphere.material], { opacity: 0, duration: 0.5 }, "-=0.8");
+
+            // 4. “云雾吞噬”特效 (Backdrop Blur + Brightness)
+            tl.to(cloudFog, { 
+                opacity: 1, 
+                scale: 1.2, // 扩散
+                backdropFilter: "blur(20px)", // 模糊加重
+                duration: 0.8, 
+                ease: "power2.in" 
+            }, "-=0.8");
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if(!isTransitioning) {
+                earthGroup.rotation.y += 0.0008;
+                clouds.rotation.y += 0.0010;
+
+                // 只有开场动画结束后才启用视差效果
+                if (!isIntro) {
+                    camera.position.x += (parallaxX * 8 - camera.position.x) * 0.05;
+                    camera.position.y += (-parallaxY * 8 - camera.position.y) * 0.05;
+                    camera.lookAt(0, 0, 0);
+                }
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            if(myChart) myChart.resize();
+        });
+
+        /* =========================================
+           PART 2: 2D & List Logic
+           ========================================= */
+        const mapInterface = document.getElementById('map-interface');
+        const listInterface = document.getElementById('list-interface');
+        const detailInterface = document.getElementById('detail-interface');
+        let myChart = null;
+
+        function switchTo2D() {
+            // 使用2.html的简洁逻辑
+            container.style.display = 'none';
+            speedLines.style.display = 'none';
+            mapInterface.style.display = 'block';
+
+            initMap('china');
+
+            setTimeout(() => {
+                gsap.to(mapInterface, { opacity: 1, duration: 1 });
+                gsap.to(cloudFog, { opacity: 0, duration: 1, onComplete: () => cloudFog.style.display = 'none' });
+            }, 100);
+        }
+
+        async function initMap(regionName) {
+            if (myChart) myChart.dispose();
+            myChart = echarts.init(document.getElementById('map-chart'));
+            myChart.showLoading({ text: '正在加载全息数据...', color: '#38bdf8', textColor: '#fff', maskColor: 'rgba(0,0,0,0)' });
+
+            const activeProvinces = ['江苏省'];
+            const activeCities = ['南京市', '苏州市'];
+            let geoJsonUrl = '';
+            let isProvince = false;
+
+            if (regionName === 'china') {
+                geoJsonUrl = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
+                document.getElementById('breadcrumb-container').classList.add('hidden');
+                document.getElementById('top-region-name').innerText = '全国';
+            } else if (regionName === 'jiangsu') {
+                geoJsonUrl = 'https://geo.datav.aliyun.com/areas_v3/bound/320000_full.json';
+                isProvince = true;
+                document.getElementById('breadcrumb-container').classList.remove('hidden');
+                document.getElementById('top-region-name').innerText = '江苏省';
+            }
+
+            try {
+                const res = await fetch(geoJsonUrl);
+                const geoJson = await res.json();
+                myChart.hideLoading();
+                echarts.registerMap(regionName, geoJson);
+
+                const dataList = geoJson.features.map(feature => {
+                    const name = feature.properties.name;
+                    const hasData = isProvince ? activeCities.includes(name) : activeProvinces.includes(name);
+
+                    return {
+                        name: name,
+                        itemStyle: {
+                            areaColor: hasData ? 'rgba(56, 189, 248, 0.3)' : 'rgba(11, 16, 38, 0.8)',
+                            borderColor: hasData ? '#38bdf8' : '#1e293b',
+                            borderWidth: hasData ? 1.5 : 1
+                        },
+                        emphasis: {
+                            itemStyle: { areaColor: hasData ? '#00F0FF' : 'rgba(11, 16, 38, 0.8)' },
+                            label: { color: '#fff' }
+                        },
+                        disabled: !hasData
+                    };
+                });
+
+                myChart.setOption({
+                    geo: {
+                        map: regionName, roam: true, zoom: 1.2,
+                        label: { show: true, color: '#94a3b8', fontSize: 10 },
+                        itemStyle: { areaColor: '#0f172a', borderColor: '#1e293b' },
+                        select: { disabled: true }
+                    },
+                    series: [{ type: 'map', geoIndex: 0, data: dataList }]
+                });
+
+                myChart.on('click', params => {
+                    if (params.data && params.data.disabled) return;
+
+                    if (!isProvince && params.name === '江苏省') {
+                        initMap('jiangsu');
+                    } else if (isProvince && activeCities.includes(params.name)) {
+                        showList(params.name);
+                    }
+                });
+
+            } catch (e) { console.error(e); }
+        }
+        function resetMapToChina() { initMap('china'); }
+
+        /* =========================================
+           PART 3: 企业列表逻辑 (使用2.html框架)
+           ========================================= */
+        const companiesData = [
+            // 南京市企业
+            {
+                id: "shein",
+                city: "南京市",
+                shortName: "Shein (希音)",
+                name: "Shein (希音)国际跨境电商",
+                tags: ["独角兽", "跨境电商", "全球化"],
+                intro: "SHEIN是全球知名快时尚跨境电商平台，总部位于南京，业务遍布全球150多个国家和地区。公司以'快速响应市场'和'柔性供应链'为核心优势，2023年估值超过660亿美元，是中国出海企业的标杆。",
+                reason: "全球化视野、高速成长、极具创新力的供应链技术，是跨境电商领域的独角兽企业，为员工提供国际化发展平台和极具竞争力的薪酬。",
+                region: "总部：南京市\n研发中心：广州、深圳\n海外办公室：新加坡、洛杉矶",
+                logo: "https://via.placeholder.com/128/0ea5e9/ffffff?text=SHEIN",
+                cover: "https://via.placeholder.com/400x200/0ea5e9/ffffff?text=SHEIN+跨境电商",
+                gallery: [
+                    "https://via.placeholder.com/300x200/0ea5e9/ffffff?text=办公环境1",
+                    "https://via.placeholder.com/300x200/0ea5e9/ffffff?text=团队活动2",
+                    "https://via.placeholder.com/300x200/0ea5e9/ffffff?text=企业文化3"
+                ],
+                segments: [
+                    {
+                        name: "技术研发中心",
+                        jobs: ["Java后端开发", "Python数据工程师", "前端开发工程师", "算法工程师", "大数据开发"]
+                    },
+                    {
+                        name: "供应链管理",
+                        jobs: ["供应链管培生", "采购专员", "物流优化工程师", "仓储管理"]
+                    },
+                    {
+                        name: "数据分析部",
+                        jobs: ["数据分析师", "商业智能分析", "用户增长分析"]
+                    }
+                ]
+            },
+            {
+                id: "suning",
+                city: "南京市",
+                shortName: "苏宁易购",
+                name: "苏宁易购集团股份有限公司",
+                tags: ["上市企业", "电商", "零售"],
+                intro: "苏宁易购是中国领先的智慧零售服务商，拥有线上线下双线融合的全场景零售模式。公司业务涵盖家电、3C、超市、母婴等多个品类，致力于为消费者提供优质的购物体验。",
+                reason: "国内知名上市企业，拥有完善的培训体系和晋升通道，适合应届生快速成长。",
+                region: "总部：南京市\n全国门店：超过6000家",
+                logo: "https://via.placeholder.com/128/fbbf24/ffffff?text=苏宁",
+                cover: "https://via.placeholder.com/400x200/fbbf24/ffffff?text=苏宁易购",
+                gallery: [
+                    "https://via.placeholder.com/300x200/fbbf24/ffffff?text=苏宁总部",
+                    "https://via.placeholder.com/300x200/fbbf24/ffffff?text=智慧门店",
+                    "https://via.placeholder.com/300x200/fbbf24/ffffff?text=物流中心"
+                ],
+                segments: [
+                    {
+                        name: "电商技术部",
+                        jobs: ["前端工程师", "产品经理", "UI设计师", "测试工程师"]
+                    },
+                    {
+                        name: "运营中心",
+                        jobs: ["运营专员", "活动策划", "内容运营", "用户运营"]
+                    }
+                ]
+            },
+            {
+                id: "focus_tech",
+                city: "南京市",
+                shortName: "焦点科技",
+                name: "焦点科技股份有限公司",
+                tags: ["上市企业", "互联网", "B2B"],
+                intro: "焦点科技是中国领先的B2B电子商务平台运营商，旗下拥有中国制造网等知名平台，为全球买家和中国供应商提供贸易撮合服务。",
+                reason: "深耕B2B领域多年，技术氛围浓厚，重视员工技术成长。",
+                region: "总部：南京市\n海外办公室：美国、欧洲",
+                logo: "https://via.placeholder.com/128/10b981/ffffff?text=焦点",
+                cover: "https://via.placeholder.com/400x200/10b981/ffffff?text=焦点科技",
+                gallery: [
+                    "https://via.placeholder.com/300x200/10b981/ffffff?text=办公区",
+                    "https://via.placeholder.com/300x200/10b981/ffffff?text=会议室",
+                    "https://via.placeholder.com/300x200/10b981/ffffff?text=休闲区"
+                ],
+                segments: [
+                    {
+                        name: "平台研发部",
+                        jobs: ["Go语言开发", "微服务架构师", "测试工程师", "运维工程师"]
+                    },
+                    {
+                        name: "产品设计部",
+                        jobs: ["产品经理", "交互设计师", "视觉设计师"]
+                    }
+                ]
+            },
+            {
+                id: "manbang",
+                city: "南京市",
+                shortName: "满帮集团",
+                name: "满帮集团有限公司",
+                tags: ["独角兽", "智慧物流", "互联网+"],
+                intro: "满帮集团是中国领先的公路物流互联网信息平台，旗下拥有运满满和货车帮两大品牌，连接超过1000万货车司机和货主，是物流科技领域的独角兽企业。",
+                reason: "物流科技独角兽，技术驱动型公司，为员工提供丰富的技术挑战和成长机会。",
+                region: "总部：南京市\n研发中心：贵阳、成都",
+                logo: "https://via.placeholder.com/128/f59e0b/ffffff?text=满帮",
+                cover: "https://via.placeholder.com/400x200/f59e0b/ffffff?text=满帮集团",
+                gallery: [
+                    "https://via.placeholder.com/300x200/f59e0b/ffffff?text=智慧物流",
+                    "https://via.placeholder.com/300x200/f59e0b/ffffff?text=技术团队",
+                    "https://via.placeholder.com/300x200/f59e0b/ffffff?text=创新实验室"
+                ],
+                segments: [
+                    {
+                        name: "AI算法部",
+                        jobs: ["算法工程师", "机器学习工程师", "NLP工程师", "推荐系统工程师"]
+                    },
+                    {
+                        name: "大数据部",
+                        jobs: ["大数据开发", "数据仓库工程师", "实时计算工程师"]
+                    }
+                ]
+            },
+            {
+                id: "bytedance_nanjing",
+                city: "南京市",
+                shortName: "字节跳动(南京)",
+                name: "字节跳动科技有限公司 南京研发中心",
+                tags: ["大厂", "互联网", "分公司"],
+                intro: "字节跳动是全球领先的内容科技公司，旗下拥有抖音、今日头条、西瓜视频等知名产品。南京研发中心承担重要的技术研发和产品创新任务。",
+                reason: "大厂背景，技术氛围一流，薪资待遇顶尖，项目有挑战性。",
+                region: "南京研发中心：南京市",
+                logo: "https://via.placeholder.com/128/ef4444/ffffff?text=字节",
+                cover: "https://via.placeholder.com/400x200/ef4444/ffffff?text=字节跳动",
+                gallery: [
+                    "https://via.placeholder.com/300x200/ef4444/ffffff?text=办公环境",
+                    "https://via.placeholder.com/300x200/ef4444/ffffff?text=技术分享",
+                    "https://via.placeholder.com/300x200/ef4444/ffffff?text=团队建设"
+                ],
+                segments: [
+                    {
+                        name: "客户端研发",
+                        jobs: ["iOS开发", "Android开发", "Flutter开发", "客户端架构师"]
+                    },
+                    {
+                        name: "全栈研发",
+                        jobs: ["全栈工程师", "Node.js开发", "React开发", "Vue开发"]
+                    }
+                ]
+            },
+            {
+                id: "huawei_nanjing",
+                city: "南京市",
+                shortName: "华为(南京研)",
+                name: "华为技术有限公司 南京研究所",
+                tags: ["ICT", "通信", "世界500强"],
+                intro: "华为是全球领先的ICT基础设施和智能终端提供商，南京研究所专注于5G、云计算、人工智能等前沿技术研发。",
+                reason: "世界500强企业，技术实力雄厚，提供完善的培训体系和职业发展路径。",
+                region: "南京研究所：南京市\n全球研发中心：深圳、上海、北京等",
+                logo: "https://via.placeholder.com/128/dc2626/ffffff?text=华为",
+                cover: "https://via.placeholder.com/400x200/dc2626/ffffff?text=华为南京",
+                gallery: [
+                    "https://via.placeholder.com/300x200/dc2626/ffffff?text=研发中心",
+                    "https://via.placeholder.com/300x200/dc2626/ffffff?text=实验室",
+                    "https://via.placeholder.com/300x200/dc2626/ffffff?text=员工活动"
+                ],
+                segments: [
+                    {
+                        name: "无线通信研究部",
+                        jobs: ["嵌入式开发", "5G网络优化", "射频工程师", "通信算法工程师"]
+                    },
+                    {
+                        name: "云计算部",
+                        jobs: ["云平台开发", "虚拟化工程师", "容器技术专家"]
+                    }
+                ]
+            },
+            // 苏州市企业
+            {
+                id: "microsoft_suzhou",
+                city: "苏州市",
+                shortName: "微软(苏州)",
+                name: "微软(中国)有限公司 苏州分公司",
+                tags: ["外企", "云计算", "AI"],
+                intro: "微软是全球领先的科技公司，苏州分公司专注于Azure云服务、人工智能和企业解决方案的研发与技术支持。",
+                reason: "全球顶级科技公司，国际化工作环境，技术前沿，薪资福利业界领先。",
+                region: "苏州分公司：苏州工业园区",
+                logo: "https://via.placeholder.com/128/06b6d4/ffffff?text=Microsoft",
+                cover: "https://via.placeholder.com/400x200/06b6d4/ffffff?text=微软苏州",
+                gallery: [
+                    "https://via.placeholder.com/300x200/06b6d4/ffffff?text=苏州园区",
+                    "https://via.placeholder.com/300x200/06b6d4/ffffff?text=研发团队",
+                    "https://via.placeholder.com/300x200/06b6d4/ffffff?text=技术交流"
+                ],
+                segments: [
+                    {
+                        name: "Azure云服务",
+                        jobs: ["Software Engineer", "Cloud Architect", "DevOps Engineer", "Site Reliability Engineer"]
+                    },
+                    {
+                        name: "产品管理部",
+                        jobs: ["Product Manager", "Program Manager", "Technical Project Manager"]
+                    }
+                ]
+            },
+            {
+                id: "ecovacs",
+                city: "苏州市",
+                shortName: "科沃斯机器人",
+                name: "科沃斯机器人股份有限公司",
+                tags: ["上市", "智能硬件", "机器人"],
+                intro: "科沃斯是全球领先的服务机器人提供商，专注于家庭服务机器人的研发、制造和销售，旗下产品包括扫地机器人、擦窗机器人等。",
+                reason: "国内智能硬件领军企业，技术研发实力强，提供从算法到硬件的全栈开发机会。",
+                region: "总部：苏州市\n生产基地：苏州、合肥",
+                logo: "https://via.placeholder.com/128/8b5cf6/ffffff?text=科沃斯",
+                cover: "https://via.placeholder.com/400x200/8b5cf6/ffffff?text=科沃斯机器人",
+                gallery: [
+                    "https://via.placeholder.com/300x200/8b5cf6/ffffff?text=研发实验室",
+                    "https://via.placeholder.com/300x200/8b5cf6/ffffff?text=生产线",
+                    "https://via.placeholder.com/300x200/8b5cf6/ffffff?text=产品展示"
+                ],
+                segments: [
+                    {
+                        name: "AI算法部",
+                        jobs: ["SLAM算法工程师", "路径规划算法", "计算机视觉工程师", "深度学习工程师"]
+                    },
+                    {
+                        name: "硬件研发部",
+                        jobs: ["机械设计工程师", "电子硬件工程师", "嵌入式开发"]
+                    }
+                ]
+            },
+            {
+                id: "tongcheng",
+                city: "苏州市",
+                shortName: "同程旅行",
+                name: "同程网络科技股份有限公司",
+                tags: ["上市", "OTA", "在线旅游"],
+                intro: "同程旅行是中国领先的在线旅游平台，提供机票、酒店、火车票、景点门票等一站式旅游服务，月活用户超过2亿。",
+                reason: "国内知名OTA平台，业务增长迅速，技术氛围好，重视用户体验和数据驱动。",
+                region: "总部：苏州市\n分公司：上海、北京",
+                logo: "https://via.placeholder.com/128/22c55e/ffffff?text=同程",
+                cover: "https://via.placeholder.com/400x200/22c55e/ffffff?text=同程旅行",
+                gallery: [
+                    "https://via.placeholder.com/300x200/22c55e/ffffff?text=办公大楼",
+                    "https://via.placeholder.com/300x200/22c55e/ffffff?text=技术团队",
+                    "https://via.placeholder.com/300x200/22c55e/ffffff?text=员工福利"
+                ],
+                segments: [
+                    {
+                        name: "技术研发中心",
+                        jobs: ["Java开发", "前端开发", "移动端开发", "测试工程师"]
+                    },
+                    {
+                        name: "增长与运营",
+                        jobs: ["用户增长专家", "数据分析师", "运营经理", "市场推广"]
+                    }
+                ]
+            },
+            {
+                id: "qichacha",
+                city: "苏州市",
+                shortName: "企查查",
+                name: "苏州朗动网络科技有限公司(企查查)",
+                tags: ["大数据", "企业服务", "互联网"],
+                intro: "企查查是中国领先的企业信用查询平台，通过大数据和人工智能技术，为用户提供企业工商信息、司法风险、经营状况等全方位的企业信息查询服务。",
+                reason: "大数据领域头部企业，技术驱动，数据规模大，适合喜欢数据挖掘和爬虫技术的工程师。",
+                region: "总部：苏州市\n研发中心：北京、上海",
+                logo: "https://via.placeholder.com/128/f97316/ffffff?text=企查查",
+                cover: "https://via.placeholder.com/400x200/f97316/ffffff?text=企查查",
+                gallery: [
+                    "https://via.placeholder.com/300x200/f97316/ffffff?text=数据中心",
+                    "https://via.placeholder.com/300x200/f97316/ffffff?text=研发团队",
+                    "https://via.placeholder.com/300x200/f97316/ffffff?text=办公环境"
+                ],
+                segments: [
+                    {
+                        name: "数据工程部",
+                        jobs: ["爬虫工程师", "数据挖掘工程师", "ETL开发", "数据质量工程师"]
+                    },
+                    {
+                        name: "平台研发部",
+                        jobs: ["后端开发", "搜索引擎工程师", "推荐系统工程师"]
+                    }
+                ]
+            }
+        ];
+
+        function showList(cityName) {
+            // 1. 切换界面
+            gsap.to(mapInterface, { opacity: 0, duration: 0.5, onComplete: () => {
+                mapInterface.style.display = 'none';
+                listInterface.style.display = 'block';
+                gsap.to(listInterface, { opacity: 1, duration: 0.5 });
+            }});
+
+            // 2. 设置标题
+            document.getElementById('list-city-title').innerText = cityName + " · 企业名录";
+
+            // 3. 过滤该城市的企业数据
+            const cityCompanies = companiesData.filter(c => c.city === cityName);
+
+            // 更新左侧统计
+            document.getElementById('company-count').innerText = cityCompanies.length;
+            document.getElementById('job-count').innerText = cityCompanies.reduce((sum, c) => sum + c.segments.reduce((s, seg) => s + seg.jobs.length, 0), 0);
+
+            const cardsContainer = document.getElementById('cards-container');
+            cardsContainer.innerHTML = ''; // 清空旧数据
+
+            // 4. 渲染企业卡片
+            cityCompanies.forEach((company) => {
+                const card = document.createElement('div');
+                card.className = 'company-card rounded-xl overflow-hidden cursor-pointer opacity-0 translate-y-10';
+                card.onclick = () => showDetail(company); // 点击跳转详情
+
+                let tagsHtml = company.tags.map(t => `<span class="tag-badge">${t}</span>`).join(' ');
+                let jobsPreview = company.segments[0].jobs.slice(0, 3).join(' / ');
+
+                card.innerHTML = `
+                    <div class="h-40 w-full overflow-hidden relative">
+                        <img src="${company.cover}" class="w-full h-full object-cover" alt="${company.shortName}">
+                        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-gray-900 to-transparent"></div>
+                    </div>
+                    <div class="p-5 text-white">
+                        <h3 class="font-bold text-lg mb-2">${company.shortName}</h3>
+                        <div class="flex flex-wrap gap-2 mb-3">${tagsHtml}</div>
+                        <p class="text-xs text-gray-400 line-clamp-2 mb-3">${company.intro}</p>
+                        <div class="pt-3 border-t border-white/10 flex justify-between items-center">
+                            <span class="text-xs text-gray-500">热招: ${jobsPreview}...</span>
+                            <span class="text-cyan-400 text-xs font-bold">详情 →</span>
+                        </div>
+                    </div>
+                `;
+                cardsContainer.appendChild(card);
+            });
+
+            // 5. 卡片进场动画
+            gsap.to('.company-card', {
+                opacity: 1,
+                y: 0,
+                duration: 0.6,
+                stagger: 0.1,
+                delay: 0.3,
+                ease: "power2.out"
+            });
+        }
+
+        // 显示企业详情页
+        function showDetail(company) {
+            // 1. 切换界面
+            gsap.to(listInterface, { opacity: 0, duration: 0.4, onComplete: () => {
+                listInterface.style.display = 'none';
+                detailInterface.style.display = 'block';
+                gsap.to(detailInterface, { opacity: 1, duration: 0.4 });
+            }});
+
+            // 2. 填充左侧基本信息
+            document.getElementById('d-name').innerText = company.name;
+            document.getElementById('d-tags').innerHTML = company.tags.map(t => `<span class="tag-badge">${t}</span>`).join(' ');
+            document.getElementById('d-intro').innerText = company.intro;
+            document.getElementById('d-reason').innerText = company.reason;
+            document.getElementById('d-region').innerText = company.region;
+
+            // 3. 填充相册
+            const galContainer = document.getElementById('d-gallery');
+            galContainer.innerHTML = '';
+            if (company.gallery && company.gallery.length > 0) {
+                company.gallery.forEach(imgUrl => {
+                    const img = document.createElement('img');
+                    img.src = imgUrl;
+                    img.className = 'gallery-img cursor-pointer';
+                    img.alt = company.shortName + ' 相册';
+                    galContainer.appendChild(img);
+                });
+            } else {
+                galContainer.innerHTML = '<div class="col-span-3 text-gray-500 text-sm text-center py-4">暂无图片</div>';
+            }
+
+            // 4. 填充业务板块
+            const segContainer = document.getElementById('d-segments');
+            segContainer.innerHTML = '';
+            company.segments.forEach(seg => {
+                const segDiv = document.createElement('div');
+                segDiv.className = 'segment-card opacity-0 translate-y-4';
+
+                let jobsHtml = seg.jobs.map(j => `<span class="job-tag">${j}</span>`).join('');
+
+                segDiv.innerHTML = `
+                    <div class="segment-title">${seg.name}</div>
+                    <div class="flex flex-wrap">${jobsHtml}</div>
+                `;
+                segContainer.appendChild(segDiv);
+            });
+
+            // 5. 进场动画
+            gsap.to('.segment-card', {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,
+                stagger: 0.05,
+                delay: 0.2,
+                ease: "power2.out"
+            });
+        }
+
+        // 从详情页返回列表页
+        function backToList() {
+            gsap.to(detailInterface, { opacity: 0, duration: 0.4, onComplete: () => {
+                detailInterface.style.display = 'none';
+                listInterface.style.display = 'block';
+                gsap.to(listInterface, { opacity: 1, duration: 0.4 });
+            }});
+        }
+
+        function backToMap() {
+            gsap.to(listInterface, { opacity: 0, duration: 0.4, onComplete: () => {
+                listInterface.style.display = 'none';
+                mapInterface.style.display = 'block';
+                gsap.to(mapInterface, { opacity: 1, duration: 0.4 });
+                if(myChart) myChart.resize();
+            }});
+        }
+    </script>
+</body>
+</html>

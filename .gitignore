@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# IDE
+.claude/
+.vscode/
+.idea/
+
+# Backup files
+*.backup_*
+
+# Node
+node_modules/
+
+# Local server (optional, can be included if needed)
+# server.js

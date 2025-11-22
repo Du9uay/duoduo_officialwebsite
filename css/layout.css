@@ -1,0 +1,118 @@
+/* ===================================
+   布局 & 层级管理
+   =================================== */
+
+/* 3D 容器 */
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#canvas-container.interactive {
+    cursor: pointer;
+}
+
+/* UI 层级 - 标题和提示 */
+#ui-layer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    z-index: 10;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+/* 高级转场特效层 */
+#speed-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    background: radial-gradient(circle, transparent 40%, rgba(255, 255, 255, 0.1) 45%, transparent 50%);
+    background-size: 200% 200%;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1);
+}
+
+#cloud-fog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    backdrop-filter: blur(0px);
+    background: radial-gradient(circle, rgba(220, 240, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 60%, rgba(255, 255, 255, 0) 100%);
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.8);
+}
+
+/* 2D 界面容器 */
+#map-interface,
+#list-interface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    display: none;
+    background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0b1026 100%);
+}
+
+#list-interface {
+    z-index: 6;
+    background: #0b1026;
+    background-image: linear-gradient(rgba(56, 189, 248, 0.03) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(56, 189, 248, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* 企业详情页容器 */
+#detail-interface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 7;
+    display: none;
+    opacity: 0;
+    background: #050b14;
+}
+
+/* 面包屑导航 */
+#breadcrumb-container {
+    position: absolute;
+    top: 20px;
+    left: 8px;
+    text-gray-400;
+    font-size: 0.875rem;
+    z-index: 40;
+}
+
+#breadcrumb-container.hidden {
+    display: none;
+}
+
+/* 移动端布局优化 */
+@media (max-width: 768px) {
+    #ui-layer {
+        width: 90%;
+    }
+
+    #breadcrumb-container {
+        top: 72px; /* 避免被固定头部遮挡 */
+    }
+}
