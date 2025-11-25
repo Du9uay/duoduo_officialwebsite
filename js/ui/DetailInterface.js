@@ -128,7 +128,7 @@ export class DetailInterface {
         document.getElementById('d-tags').innerHTML = company.tags
             .map(t => `<span class="tag-badge">${t}</span>`)
             .join(' ');
-        document.getElementById('d-intro').innerText = company.intro;
+        document.getElementById('d-intro').innerText = company.description;
         document.getElementById('d-reason').innerText = company.reason;
         document.getElementById('d-region').innerText = company.region;
 
